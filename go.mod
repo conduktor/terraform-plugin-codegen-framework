@@ -9,6 +9,9 @@ require (
 	github.com/mattn/go-colorable v0.1.14
 )
 
+// Use fork of terraform-plugin-codegen-spec on branch cdk-add-single_nested-custom_type_name-override
+replace github.com/hashicorp/terraform-plugin-codegen-spec => github.com/conduktor/terraform-plugin-codegen-spec v0.0.0-20250213112457-5b5117af3e12
+
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect

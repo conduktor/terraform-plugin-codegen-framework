@@ -38,6 +38,10 @@ type GeneratorAttribute interface {
 	Schema(FrameworkIdentifier) (string, error)
 }
 
+type ObjectType interface {
+	CustomTypeName(FrameworkIdentifier) string
+}
+
 type AttrType interface {
 	AttrType(FrameworkIdentifier) (string, error)
 }

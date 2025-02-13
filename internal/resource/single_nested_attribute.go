@@ -16,6 +16,8 @@ import (
 )
 
 type GeneratorSingleNestedAttribute struct {
+	keyName                  string
+	customTypeName           string
 	AssociatedExternalType   *schema.AssocExtType
 	Attributes               schema.GeneratorAttributes
 	ComputedOptionalRequired convert.ComputedOptionalRequired
@@ -33,6 +35,11 @@ func NewGeneratorSingleNestedAttribute(name string, a *resource.SingleNestedAttr
 		return GeneratorSingleNestedAttribute{}, fmt.Errorf("*resource.SingleNestedAttribute is nil")
 	}
 
+	customTypeName := name
+	if a.CustomTypeName != "" {
+		customTypeName = a.CustomTypeName
+	}
+
 	attributes, err := NewAttributes(a.Attributes)
 
 	if err != nil {
@@ -41,7 +48,7 @@ func NewGeneratorSingleNestedAttribute(name string, a *resource.SingleNestedAttr
 
 	c := convert.NewComputedOptionalRequired(a.ComputedOptionalRequired)
 
-	ct := convert.NewCustomTypeNestedObject(a.CustomType, name)
+	ct := convert.NewCustomTypeNestedObject(a.CustomType, customTypeName)
 
 	dc := convert.NewDefaultCustom(a.Default.CustomDefault())
 
@@ -56,6 +63,8 @@ func NewGeneratorSingleNestedAttribute(name string, a *resource.SingleNestedAttr
 	v := convert.NewValidators(convert.ValidatorTypeObject, a.Validators.CustomValidators())
 
 	return GeneratorSingleNestedAttribute{
+		keyName:                  name,
+		customTypeName:           customTypeName,
 		AssociatedExternalType:   schema.NewAssocExtType(a.AssociatedExternalType),
 		Attributes:               attributes,
 		ComputedOptionalRequired: c,
@@ -67,6 +76,10 @@ func NewGeneratorSingleNestedAttribute(name string, a *resource.SingleNestedAttr
 		Sensitive:                s,
 		Validators:               v,
 	}, nil
+}
+
+func (g GeneratorSingleNestedAttribute) CustomTypeName(_id schema.FrameworkIdentifier) string {
+	return g.customTypeName
 }
 
 func (g GeneratorSingleNestedAttribute) GeneratorSchemaType() schema.Type {
@@ -145,7 +158,9 @@ func (g GeneratorSingleNestedAttribute) Schema(name schema.FrameworkIdentifier) 
 	if err != nil {
 		return "", err
 	}
-
+	if g.keyName != "" {
+		name = schema.FrameworkIdentifier(g.keyName)
+	}
 	var b bytes.Buffer
 
 	b.WriteString(fmt.Sprintf("%q: schema.SingleNestedAttribute{\n", name))
@@ -166,10 +181,15 @@ func (g GeneratorSingleNestedAttribute) Schema(name schema.FrameworkIdentifier) 
 }
 
 func (g GeneratorSingleNestedAttribute) ModelField(name schema.FrameworkIdentifier) (model.Field, error) {
+	modelNameIdentifier := name
+	if g.customTypeName != "" {
+		modelNameIdentifier = schema.FrameworkIdentifier(g.customTypeName)
+	}
+
 	f := model.Field{
-		Name:      name.ToPascalCase(),
-		TfsdkName: name.ToString(),
-		ValueType: name.ToPascalCase() + "Value",
+		Name:      modelNameIdentifier.ToPascalCase(),
+		TfsdkName: modelNameIdentifier.ToString(),
+		ValueType: modelNameIdentifier.ToPascalCase() + "Value",
 	}
 
 	customValueType := g.CustomType.ValueType()
@@ -188,13 +208,18 @@ func (g GeneratorSingleNestedAttribute) GetAttributes() schema.GeneratorAttribut
 func (g GeneratorSingleNestedAttribute) CustomTypeAndValue(name string) ([]byte, error) {
 	var buf bytes.Buffer
 
+	customName := name
+	if g.customTypeName != "" {
+		customName = g.customTypeName
+	}
+
 	attributeAttrValues, err := g.Attributes.AttrValues()
 
 	if err != nil {
 		return nil, err
 	}
 
-	objectType := schema.NewCustomNestedObjectType(name, attributeAttrValues)
+	objectType := schema.NewCustomNestedObjectType(customName, attributeAttrValues)
 
 	b, err := objectType.Render()
 
@@ -216,13 +241,19 @@ func (g GeneratorSingleNestedAttribute) CustomTypeAndValue(name string) ([]byte,
 		return nil, err
 	}
 
+	attributeNestedAttrTypes, err := g.Attributes.NestedAttrTypes()
+
+	if err != nil {
+		return nil, err
+	}
+
 	attributeCollectionTypes, err := g.Attributes.CollectionTypes()
 
 	if err != nil {
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(name, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(customName, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrTypes, attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 

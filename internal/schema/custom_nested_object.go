@@ -324,12 +324,13 @@ type CustomNestedObjectValue struct {
 	Name            FrameworkIdentifier
 	AttributeTypes  map[FrameworkIdentifier]string
 	AttrTypes       map[FrameworkIdentifier]string
+	NestedAttrTypes map[FrameworkIdentifier]string
 	AttrValues      map[FrameworkIdentifier]string
 	CollectionTypes map[FrameworkIdentifier]map[string]string
 	templates       map[string]string
 }
 
-func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
+func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues, nestedAttrTypes map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
 	t := map[string]string{
 		"attributeTypes":   NestedObjectValueAttributeTypesTemplate,
 		"equal":            NestedObjectValueEqualTemplate,
@@ -355,6 +356,12 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 		attrTyps[FrameworkIdentifier(k)] = v
 	}
 
+	nestedAttrTyps := make(map[FrameworkIdentifier]string, len(nestedAttrTypes))
+
+	for k, v := range nestedAttrTypes {
+		nestedAttrTyps[FrameworkIdentifier(k)] = v
+	}
+
 	attrVals := make(map[FrameworkIdentifier]string, len(attrValues))
 
 	for k, v := range attrValues {
@@ -371,6 +378,7 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 		Name:            FrameworkIdentifier(name),
 		AttributeTypes:  attribTypes,
 		AttrTypes:       attrTyps,
+		NestedAttrTypes: nestedAttrTyps,
 		AttrValues:      attrVals,
 		CollectionTypes: collectionTyps,
 		templates:       t,
@@ -535,11 +543,13 @@ func (c CustomNestedObjectValue) renderToObjectValue() ([]byte, error) {
 		Name            string
 		AttributeTypes  map[FrameworkIdentifier]string
 		AttrTypes       map[FrameworkIdentifier]string
+		NestedAttrTypes map[FrameworkIdentifier]string
 		CollectionTypes map[FrameworkIdentifier]map[string]string
 	}{
 		Name:            c.Name.ToPascalCase(),
 		AttributeTypes:  c.AttributeTypes,
 		AttrTypes:       c.AttrTypes,
+		NestedAttrTypes: c.NestedAttrTypes,
 		CollectionTypes: c.CollectionTypes,
 	})
 

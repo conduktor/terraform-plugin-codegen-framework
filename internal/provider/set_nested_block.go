@@ -267,7 +267,7 @@ func (g GeneratorSetNestedBlock) CustomTypeAndValue(name string) ([]byte, error)
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(name, attributesBlocksTypes, attributesBlocksAttrTypes, attributesBlocksAttrValues, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(name, attributesBlocksTypes, attributesBlocksAttrTypes, attributesBlocksAttrValues, make(map[string]string), attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 

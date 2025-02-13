@@ -44,19 +44,19 @@ var {{$key.ToCamelCase}} basetypes.ObjectValue
 
 if v.{{$key.ToPascalCase}}.IsNull() {
 {{$key.ToCamelCase}} = types.ObjectNull(
-{{$key.ToPascalCase}}Value{}.AttributeTypes(ctx),
+{{index $.NestedAttrTypes $key}},
 )
 }
 
 if v.{{$key.ToPascalCase}}.IsUnknown() {
 {{$key.ToCamelCase}} = types.ObjectUnknown(
-{{$key.ToPascalCase}}Value{}.AttributeTypes(ctx),
+{{index $.NestedAttrTypes $key}},
 )
 }
 
 if !v.{{$key.ToPascalCase}}.IsNull() && !v.{{$key.ToPascalCase}}.IsUnknown() {
 {{$key.ToCamelCase}} = types.ObjectValueMust(
-{{$key.ToPascalCase}}Value{}.AttributeTypes(ctx),
+{{index $.NestedAttrTypes $key}},
 v.{{$key.ToPascalCase}}.Attributes(),
 )
 }
