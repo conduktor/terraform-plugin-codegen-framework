@@ -40,22 +40,22 @@ AttrTypes: {{$key.ToPascalCase}}Value{}.AttributeTypes(ctx),
 }
 {{else if eq $value "SingleNested"}}
 
-var {{$key.ToCamelCase}} basetypes.ObjectValue
+var {{$key.ToCamelCase}}Val basetypes.ObjectValue
 
 if v.{{$key.ToPascalCase}}.IsNull() {
-{{$key.ToCamelCase}} = types.ObjectNull(
+{{$key.ToCamelCase}}Val = types.ObjectNull(
 {{index $.NestedAttrTypes $key}},
 )
 }
 
 if v.{{$key.ToPascalCase}}.IsUnknown() {
-{{$key.ToCamelCase}} = types.ObjectUnknown(
+{{$key.ToCamelCase}}Val = types.ObjectUnknown(
 {{index $.NestedAttrTypes $key}},
 )
 }
 
 if !v.{{$key.ToPascalCase}}.IsNull() && !v.{{$key.ToPascalCase}}.IsUnknown() {
-{{$key.ToCamelCase}} = types.ObjectValueMust(
+{{$key.ToCamelCase}}Val = types.ObjectValueMust(
 {{index $.NestedAttrTypes $key}},
 v.{{$key.ToPascalCase}}.Attributes(),
 )
@@ -139,11 +139,13 @@ objVal, diags := types.ObjectValue(
 attributeTypes,
 map[string]attr.Value{
 {{- range $key, $value := .AttributeTypes }}
-{{- if eq $value "ListNested" "MapNested" "SetNested" "SingleNested"}}
+{{- if eq $value "ListNested" "MapNested" "SetNested"}}
 "{{$key}}": {{$key.ToPrefixCamelCase $.Name}},
 {{- else if index $.CollectionTypes $key}}
 "{{$key}}": {{$key.ToCamelCase}}Val,
 {{- else if eq $value "Object"}}
+"{{$key}}": {{$key.ToCamelCase}}Val,
+{{- else if eq $value "SingleNested"}}
 "{{$key}}": {{$key.ToCamelCase}}Val,
 {{- else}}
 "{{$key}}": v.{{$key.ToPrefixPascalCase $.Name}},
