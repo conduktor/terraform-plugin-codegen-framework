@@ -268,6 +268,12 @@ func (g GeneratorSingleNestedBlock) CustomTypeAndValue(name string) ([]byte, err
 		return nil, err
 	}
 
+	attributeNestedAttrNames, err := g.Attributes.NestedAttrNames()
+
+	if err != nil {
+		return nil, err
+	}
+
 	attributeNestedAttrTypes, err := g.Attributes.NestedAttrTypes()
 
 	if err != nil {
@@ -297,7 +303,7 @@ func (g GeneratorSingleNestedBlock) CustomTypeAndValue(name string) ([]byte, err
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(name, attributesBlocksTypes, attributesBlocksAttrTypes, attributesBlocksAttrValues, attributeNestedAttrTypes, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(name, attributesBlocksTypes, attributesBlocksAttrTypes, attributesBlocksAttrValues, attributeNestedAttrNames, attributeNestedAttrTypes, attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 

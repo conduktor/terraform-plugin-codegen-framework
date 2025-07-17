@@ -53,6 +53,35 @@ func (g GeneratorAttributes) AttributeTypes() (map[string]string, error) {
 	return attributeTypes, nil
 }
 
+func (g GeneratorAttributes) NestedAttrNames() (map[string]string, error) {
+	attributeKeys := g.SortedKeys()
+
+	attrNames := make(map[string]string, len(g))
+
+	for _, k := range attributeKeys {
+		name := FrameworkIdentifier(k)
+		if a, ok := g[k].(ObjectType); ok {
+			name = FrameworkIdentifier(a.CustomTypeName(name))
+		}
+
+		if a, ok := g[k].(AttrType); ok {
+			attrName, err := a.AttrType(name)
+
+			if err != nil {
+				return nil, err
+			}
+
+			attrNames[k] = attrName
+
+			continue
+		}
+		
+		attrNames[k] =  name.ToPascalCase()
+	}
+
+	return attrNames, nil
+}
+
 func (g GeneratorAttributes) NestedAttrTypes() (map[string]string, error) {
 	attributeKeys := g.SortedKeys()
 

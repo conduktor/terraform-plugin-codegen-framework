@@ -324,13 +324,14 @@ type CustomNestedObjectValue struct {
 	Name            FrameworkIdentifier
 	AttributeTypes  map[FrameworkIdentifier]string
 	AttrTypes       map[FrameworkIdentifier]string
+	NestedAttrNames map[FrameworkIdentifier]string
 	NestedAttrTypes map[FrameworkIdentifier]string
 	AttrValues      map[FrameworkIdentifier]string
 	CollectionTypes map[FrameworkIdentifier]map[string]string
 	templates       map[string]string
 }
 
-func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues, nestedAttrTypes map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
+func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues, nestedAttrNames, nestedAttrTypes map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
 	t := map[string]string{
 		"attributeTypes":   NestedObjectValueAttributeTypesTemplate,
 		"equal":            NestedObjectValueEqualTemplate,
@@ -355,6 +356,12 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 	for k, v := range attrTypes {
 		attrTyps[FrameworkIdentifier(k)] = v
 	}
+	
+	nestedAttrNmes := make(map[FrameworkIdentifier]string, len(nestedAttrNames))
+
+	for k, v := range nestedAttrNames {
+		nestedAttrNmes[FrameworkIdentifier(k)] = v
+	}
 
 	nestedAttrTyps := make(map[FrameworkIdentifier]string, len(nestedAttrTypes))
 
@@ -378,6 +385,7 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 		Name:            FrameworkIdentifier(name),
 		AttributeTypes:  attribTypes,
 		AttrTypes:       attrTyps,
+		NestedAttrNames: nestedAttrNmes,
 		NestedAttrTypes: nestedAttrTyps,
 		AttrValues:      attrVals,
 		CollectionTypes: collectionTyps,
@@ -543,12 +551,14 @@ func (c CustomNestedObjectValue) renderToObjectValue() ([]byte, error) {
 		Name            string
 		AttributeTypes  map[FrameworkIdentifier]string
 		AttrTypes       map[FrameworkIdentifier]string
+		NestedAttrNames map[FrameworkIdentifier]string
 		NestedAttrTypes map[FrameworkIdentifier]string
 		CollectionTypes map[FrameworkIdentifier]map[string]string
 	}{
 		Name:            c.Name.ToPascalCase(),
 		AttributeTypes:  c.AttributeTypes,
 		AttrTypes:       c.AttrTypes,
+		NestedAttrNames: c.NestedAttrNames,
 		NestedAttrTypes: c.NestedAttrTypes,
 		CollectionTypes: c.CollectionTypes,
 	})

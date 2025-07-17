@@ -16,6 +16,8 @@ import (
 )
 
 type GeneratorSetNestedAttribute struct {
+	keyName                  string
+	customTypeName           string
 	ComputedOptionalRequired convert.ComputedOptionalRequired
 	CustomType               convert.CustomTypeNestedCollection
 	Default                  convert.DefaultCustom
@@ -31,6 +33,11 @@ type GeneratorSetNestedAttribute struct {
 func NewGeneratorSetNestedAttribute(name string, a *resource.SetNestedAttribute) (GeneratorSetNestedAttribute, error) {
 	if a == nil {
 		return GeneratorSetNestedAttribute{}, fmt.Errorf("*resource.SetNestedAttribute is nil")
+	}
+
+	customTypeName := name
+	if a.CustomTypeName != "" {
+		customTypeName = a.CustomTypeName
 	}
 
 	attributes, err := NewAttributes(a.NestedObject.Attributes)
@@ -53,7 +60,7 @@ func NewGeneratorSetNestedAttribute(name string, a *resource.SetNestedAttribute)
 
 	vo := convert.NewValidators(convert.ValidatorTypeObject, a.NestedObject.Validators.CustomValidators())
 
-	nat := NewNestedAttributeObject(attributes, a.NestedObject.CustomType, pmo, vo, name)
+	nat := NewNestedAttributeObject(attributes, a.NestedObject.CustomType, pmo, vo, customTypeName)
 
 	pms := convert.NewPlanModifiers(convert.PlanModifierTypeSet, a.PlanModifiers.CustomPlanModifiers())
 
@@ -62,6 +69,8 @@ func NewGeneratorSetNestedAttribute(name string, a *resource.SetNestedAttribute)
 	vs := convert.NewValidators(convert.ValidatorTypeSet, a.Validators.CustomValidators())
 
 	return GeneratorSetNestedAttribute{
+		keyName:                  name,
+		customTypeName:           customTypeName,
 		ComputedOptionalRequired: c,
 		CustomType:               ct,
 		Default:                  dc,
@@ -78,6 +87,10 @@ func NewGeneratorSetNestedAttribute(name string, a *resource.SetNestedAttribute)
 		Sensitive:             s,
 		Validators:            vs,
 	}, nil
+}
+
+func (g GeneratorSetNestedAttribute) CustomTypeName(_id schema.FrameworkIdentifier) string {
+	return g.customTypeName
 }
 
 func (g GeneratorSetNestedAttribute) GeneratorSchemaType() schema.Type {
@@ -156,6 +169,9 @@ func (g GeneratorSetNestedAttribute) Schema(name schema.FrameworkIdentifier) (st
 	if err != nil {
 		return "", err
 	}
+	if g.keyName != "" {
+		name = schema.FrameworkIdentifier(g.keyName)
+	}
 
 	var b bytes.Buffer
 
@@ -175,10 +191,15 @@ func (g GeneratorSetNestedAttribute) Schema(name schema.FrameworkIdentifier) (st
 }
 
 func (g GeneratorSetNestedAttribute) ModelField(name schema.FrameworkIdentifier) (model.Field, error) {
+	modelNameIdentifier := name
+	if g.customTypeName != "" {
+		modelNameIdentifier = schema.FrameworkIdentifier(g.customTypeName)
+	}
+
 	f := model.Field{
-		Name:      name.ToPascalCase(),
-		TfsdkName: name.ToString(),
-		ValueType: model.SetValueType,
+		Name:      modelNameIdentifier.ToPascalCase(),
+		TfsdkName: modelNameIdentifier.ToString(),
+		ValueType: modelNameIdentifier.ToPascalCase() + "Value",
 	}
 
 	customValueType := g.CustomType.ValueType()
@@ -197,13 +218,18 @@ func (g GeneratorSetNestedAttribute) GetAttributes() schema.GeneratorAttributes 
 func (g GeneratorSetNestedAttribute) CustomTypeAndValue(name string) ([]byte, error) {
 	var buf bytes.Buffer
 
+	customName := name
+	if g.customTypeName != "" {
+		customName = g.customTypeName
+	}
+
 	attributeAttrValues, err := g.NestedObject.Attributes.AttrValues()
 
 	if err != nil {
 		return nil, err
 	}
 
-	objectType := schema.NewCustomNestedObjectType(name, attributeAttrValues)
+	objectType := schema.NewCustomNestedObjectType(customName, attributeAttrValues)
 
 	b, err := objectType.Render()
 
@@ -225,6 +251,12 @@ func (g GeneratorSetNestedAttribute) CustomTypeAndValue(name string) ([]byte, er
 		return nil, err
 	}
 
+	attributeNestedAttrNames, err := g.NestedObject.Attributes.NestedAttrNames()
+
+	if err != nil {
+		return nil, err
+	}
+
 	attributeNestedAttrTypes, err := g.NestedObject.Attributes.NestedAttrTypes()
 
 	if err != nil {
@@ -237,7 +269,7 @@ func (g GeneratorSetNestedAttribute) CustomTypeAndValue(name string) ([]byte, er
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(name, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrTypes, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(customName, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrNames, attributeNestedAttrTypes, attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 

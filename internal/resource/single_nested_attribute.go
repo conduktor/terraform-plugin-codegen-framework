@@ -241,6 +241,12 @@ func (g GeneratorSingleNestedAttribute) CustomTypeAndValue(name string) ([]byte,
 		return nil, err
 	}
 
+	attributeNestedAttrNames, err := g.Attributes.NestedAttrNames()
+
+	if err != nil {
+		return nil, err
+	}
+
 	attributeNestedAttrTypes, err := g.Attributes.NestedAttrTypes()
 
 	if err != nil {
@@ -253,7 +259,7 @@ func (g GeneratorSingleNestedAttribute) CustomTypeAndValue(name string) ([]byte,
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(customName, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrTypes, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(customName, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrNames, attributeNestedAttrTypes, attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 
