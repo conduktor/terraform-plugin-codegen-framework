@@ -331,7 +331,7 @@ type CustomNestedObjectValue struct {
 	templates       map[string]string
 }
 
-func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues, nestedAttrNames, nestedAttrTypes map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
+func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValues, nestedAttrNames map[string]string, collectionTypes map[string]map[string]string) CustomNestedObjectValue {
 	t := map[string]string{
 		"attributeTypes":   NestedObjectValueAttributeTypesTemplate,
 		"equal":            NestedObjectValueEqualTemplate,
@@ -356,17 +356,11 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 	for k, v := range attrTypes {
 		attrTyps[FrameworkIdentifier(k)] = v
 	}
-	
+
 	nestedAttrNmes := make(map[FrameworkIdentifier]string, len(nestedAttrNames))
 
 	for k, v := range nestedAttrNames {
 		nestedAttrNmes[FrameworkIdentifier(k)] = v
-	}
-
-	nestedAttrTyps := make(map[FrameworkIdentifier]string, len(nestedAttrTypes))
-
-	for k, v := range nestedAttrTypes {
-		nestedAttrTyps[FrameworkIdentifier(k)] = v
 	}
 
 	attrVals := make(map[FrameworkIdentifier]string, len(attrValues))
@@ -386,7 +380,6 @@ func NewCustomNestedObjectValue(name string, attributeTypes, attrTypes, attrValu
 		AttributeTypes:  attribTypes,
 		AttrTypes:       attrTyps,
 		NestedAttrNames: nestedAttrNmes,
-		NestedAttrTypes: nestedAttrTyps,
 		AttrValues:      attrVals,
 		CollectionTypes: collectionTyps,
 		templates:       t,

@@ -231,19 +231,13 @@ func (g GeneratorMapNestedAttribute) CustomTypeAndValue(name string) ([]byte, er
 		return nil, err
 	}
 
-	attributeNestedAttrTypes, err := g.NestedObject.Attributes.NestedAttrTypes()
-
-	if err != nil {
-		return nil, err
-	}
-
 	attributeCollectionTypes, err := g.NestedObject.Attributes.CollectionTypes()
 
 	if err != nil {
 		return nil, err
 	}
 
-	objectValue := schema.NewCustomNestedObjectValue(name, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrNames, attributeNestedAttrTypes, attributeCollectionTypes)
+	objectValue := schema.NewCustomNestedObjectValue(name, attributeTypes, attributeAttrTypes, attributeAttrValues, attributeNestedAttrNames, attributeCollectionTypes)
 
 	b, err = objectValue.Render()
 
