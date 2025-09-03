@@ -194,7 +194,7 @@ func (g GeneratorSetNestedAttribute) ModelField(name schema.FrameworkIdentifier)
 	f := model.Field{
 		Name:      name.ToPascalCase(),
 		TfsdkName: name.ToString(),
-		ValueType: name.ToPascalCase() + "Value",
+		ValueType: model.SetValueType,
 	}
 
 	customValueType := g.CustomType.ValueType()

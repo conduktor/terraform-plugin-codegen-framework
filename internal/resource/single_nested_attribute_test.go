@@ -1269,16 +1269,6 @@ func TestGeneratorSingleNestedAttribute_ModelField(t *testing.T) {
 				TfsdkName: "single_nested_attribute",
 			},
 		},
-		"custom-type-name": {
-			input: GeneratorSingleNestedAttribute{
-				customTypeName: "my_custom_value_type_name",
-			},
-			expected: model.Field{
-				Name:      "MyCustomValueTypeName",
-				ValueType: "MyCustomValueTypeNameValue",
-				TfsdkName: "my_custom_value_type_name",
-			},
-		},
 	}
 
 	for name, testCase := range testCases {

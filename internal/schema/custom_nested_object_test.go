@@ -1003,6 +1003,7 @@ func TestCustomNestedObjectValue_renderToObjectValue(t *testing.T) {
 		name            string
 		attributeTypes  map[string]string
 		attrTypes       map[string]string
+		nestedAttrNames map[string]string
 		collectionTypes map[string]map[string]string
 		expected        []byte
 		expectedError   error
@@ -1047,6 +1048,9 @@ return objVal, diags
 			},
 			attrTypes: map[string]string{
 				"list_nested_attribute": "basetypes.ListType{}",
+			},
+			nestedAttrNames: map[string]string{
+				"list_nested_attribute": "ListNestedAttribute",
 			},
 			expected: []byte(`
 func (v ExampleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
@@ -1111,6 +1115,9 @@ return objVal, diags
 			attrTypes: map[string]string{
 				"map_nested_attribute": "basetypes.MapType{}",
 			},
+			nestedAttrNames: map[string]string{
+				"map_nested_attribute": "MapNestedAttribute",
+			},
 			expected: []byte(`
 func (v ExampleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
 var diags diag.Diagnostics
@@ -1173,6 +1180,9 @@ return objVal, diags
 			},
 			attrTypes: map[string]string{
 				"set_nested_attribute": "basetypes.SetType{}",
+			},
+			nestedAttrNames: map[string]string{
+				"set_nested_attribute": "SetNestedAttribute",
 			},
 			expected: []byte(`
 func (v ExampleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
@@ -1269,6 +1279,9 @@ return objVal, diags
 			},
 			attrTypes: map[string]string{
 				"type": "basetypes.ListType{}",
+			},
+			nestedAttrNames: map[string]string{
+				"type": "Type",
 			},
 			expected: []byte(`
 func (v ExampleValue) ToObjectValue(ctx context.Context) (basetypes.ObjectValue, diag.Diagnostics) {
@@ -1671,7 +1684,7 @@ return objVal, diags
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			customObjectValue := NewCustomNestedObjectValue(testCase.name, testCase.attributeTypes, testCase.attrTypes, nil, make(map[string]string), testCase.collectionTypes)
+			customObjectValue := NewCustomNestedObjectValue(testCase.name, testCase.attributeTypes, testCase.attrTypes, nil, testCase.nestedAttrNames, testCase.collectionTypes)
 
 			got, err := customObjectValue.renderToObjectValue()
 
