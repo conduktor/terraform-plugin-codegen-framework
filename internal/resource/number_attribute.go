@@ -211,6 +211,11 @@ func (g GeneratorNumberAttribute) AttrType(name generatorschema.FrameworkIdentif
 		return fmt.Sprintf("%sType{}", name.ToPascalCase()), nil
 	}
 
+	// Support custom types that implement basetypes.NumberTypable
+	if g.CustomType.Type() != "" {
+		return g.CustomType.Type(), nil
+	}
+
 	return "basetypes.NumberType{}", nil
 }
 
@@ -218,6 +223,11 @@ func (g GeneratorNumberAttribute) AttrType(name generatorschema.FrameworkIdentif
 func (g GeneratorNumberAttribute) AttrValue(name generatorschema.FrameworkIdentifier) string {
 	if g.AssociatedExternalType != nil {
 		return fmt.Sprintf("%sValue", name.ToPascalCase())
+	}
+
+	// Support custom types that implement basetypes.NumberValuable
+	if g.CustomType.ValueType() != "" {
+		return g.CustomType.ValueType()
 	}
 
 	return "basetypes.NumberValue"

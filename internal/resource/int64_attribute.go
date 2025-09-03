@@ -211,6 +211,11 @@ func (g GeneratorInt64Attribute) AttrType(name generatorschema.FrameworkIdentifi
 		return fmt.Sprintf("%sType{}", name.ToPascalCase()), nil
 	}
 
+	// Support custom types that implement basetypes.Int64Typable
+	if g.CustomType.Type() != "" {
+		return g.CustomType.Type(), nil
+	}
+
 	return "basetypes.Int64Type{}", nil
 }
 
@@ -218,6 +223,11 @@ func (g GeneratorInt64Attribute) AttrType(name generatorschema.FrameworkIdentifi
 func (g GeneratorInt64Attribute) AttrValue(name generatorschema.FrameworkIdentifier) string {
 	if g.AssociatedExternalType != nil {
 		return fmt.Sprintf("%sValue", name.ToPascalCase())
+	}
+
+	// Support custom types that implement basetypes.Int64Valuable
+	if g.CustomType.ValueType() != "" {
+		return g.CustomType.ValueType()
 	}
 
 	return "basetypes.Int64Value"

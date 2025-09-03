@@ -211,6 +211,11 @@ func (g GeneratorFloat64Attribute) AttrType(name generatorschema.FrameworkIdenti
 		return fmt.Sprintf("%sType{}", name.ToPascalCase()), nil
 	}
 
+	// Support custom types that implement basetypes.Float64Typable
+	if g.CustomType.Type() != "" {
+		return g.CustomType.Type(), nil
+	}
+
 	return "basetypes.Float64Type{}", nil
 }
 
@@ -218,6 +223,11 @@ func (g GeneratorFloat64Attribute) AttrType(name generatorschema.FrameworkIdenti
 func (g GeneratorFloat64Attribute) AttrValue(name generatorschema.FrameworkIdentifier) string {
 	if g.AssociatedExternalType != nil {
 		return fmt.Sprintf("%sValue", name.ToPascalCase())
+	}
+
+	// Support custom types that implement basetypes.Float64Valuable
+	if g.CustomType.ValueType() != "" {
+		return g.CustomType.ValueType()
 	}
 
 	return "basetypes.Float64Value"
